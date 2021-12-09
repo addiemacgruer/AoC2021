@@ -12,9 +12,8 @@ func readFile(name string) []int {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
-	var items []int
 
+	var items []int
 	for scanner.Scan() {
 		item, _ := strconv.Atoi(scanner.Text())
 		items = append(items, item)

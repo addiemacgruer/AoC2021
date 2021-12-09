@@ -31,7 +31,6 @@ func readFile(name string) []Entry {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
 
 	var entries []Entry
 	for scanner.Scan() {
