@@ -104,6 +104,6 @@ func (cavern Cavern) getFlashes() (int, int) {
 }
 
 func main() {
-	fmt.Println(readFile("input.test").getFlashes()) // 1656 195
+//fmt.Println(readFile("input.test").getFlashes()) // 1656 195
 	fmt.Println(readFile("input").getFlashes())      // 1640 312
 }
