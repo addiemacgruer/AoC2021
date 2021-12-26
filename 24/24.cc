@@ -1,11 +1,14 @@
 #include <algorithm>
 #include <array>
+#include <cstdlib>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -21,7 +24,7 @@ auto reg(char r) {
   case 'y': return Y;
   case 'z': return Z;
   }
-  throw std::runtime_error{"bad reg"};
+  std::exit(-1);
 }
 
 auto atoi(const std::string &s) {
@@ -30,9 +33,7 @@ auto atoi(const std::string &s) {
   return std::stoi(s);
 }
 
-struct Op {
-  int op, reg, value;
-};
+struct Op { int op, reg, value; };
 
 auto opForLine(const std::string &line) {
   switch (line[1]) {
@@ -43,7 +44,7 @@ auto opForLine(const std::string &line) {
   case 'o': return Op{MOD, reg(line[4]), atoi(line.substr(6))};
   case 'q': return Op{EQL, reg(line[4]), atoi(line.substr(6))};
   }
-  throw std::runtime_error{"bad line!"};
+  std::exit(-1);
 }
 
 auto readfile(const std::string &name) {
@@ -93,22 +94,22 @@ auto run(const std::vector<Op> &input, int64_t value, int64_t z) {
       auto comp = (op.value >= 100) ? vars[op.value - 100] : op.value;
       vars[op.reg] = (vars[op.reg] == comp) ? 1 : 0;
     } break;
-    default:
-      throw std::runtime_error{"bad op"};
     }
   }
   return vars[Z];
 }
-
+//
 template <class F>
 auto evaluate(std::vector<std::vector<Op>> &ops, F resolver) {
-  auto results = std::map<int64_t, int64_t>{};
+  auto results = std::unordered_map<int64_t, int64_t>{};
   results[0] = 0;
 
+  auto working = std::unordered_map<int64_t, int64_t>{};
   for (auto level = 0; level <= 13; level++) {
-    auto working = std::map<int64_t, int64_t>{};
     for (const auto &pair : results) {
       for (auto x = 1; x <= 9; x++) {
+        if (pair.first > 1000000)
+          continue;
         auto e = run(ops[level], x, pair.first);
         auto val = pair.second * 10 + x;
         if (auto f = working.find(e); f != working.end()) {
@@ -119,6 +120,7 @@ auto evaluate(std::vector<std::vector<Op>> &ops, F resolver) {
       }
     }
     std::swap(working, results);
+    working.clear();
   }
   std::cout << results.at(0) << '\n';
 }
@@ -127,8 +129,7 @@ auto evaluate(std::vector<std::vector<Op>> &ops, F resolver) {
 
 int main() {
   auto ops = readfile("input");
-  if (ops.size() != 14) throw std::runtime_error{"bad ops!"};
 
-  evaluate(ops, [](int64_t a, int64_t b) {return std::max(a,b);}); // 99598963999971
-  evaluate(ops, [](int64_t a, int64_t b) {return std::min(a,b);}); // 93151411711211
+  evaluate(ops, [](int64_t a, int64_t b) { return std::max(a, b); }); // 99598963999971
+  evaluate(ops, [](int64_t a, int64_t b) { return std::min(a, b); }); // 93151411711211
 }
